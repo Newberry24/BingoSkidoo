@@ -13,37 +13,39 @@ public class Game:MonoBehaviour
     public Text moneyDisplay;
     public Text callsLeftDisplay;
     public CalledNumberTable callTable;
-	
+    public GameObject endButton;
+
     private static Difficulty level;
     private List<BingoNumber> numbers;
     private int numbersToCall;
     private decimal winnings;
 	void Start()
     {
-       // Debug.Log("Game Start Initialized");
-        WinningCombos.Initialize();
+        endButton.SetActive(false);
+        // Debug.Log("Game Start Initialized");
         numbers = new List<BingoNumber>();
         //Construct all bingo numbers
         for(int i = 1; i <= 75; i++)
 			numbers.Add(new BingoNumber(i));
         //Deduct money depending on the card count
         MoneyHolder.Deduct((decimal)(cardCount* .1));
-        moneyDisplay.text = "Money: $" + MoneyHolder.Amount;
+        moneyDisplay.text = string.Format("Money: {0:c}", MoneyHolder.Amount);
         //set numbers called and winnings depending on the difficulty level.
         switch (level){
             case Difficulty.Easy:
                 numbersToCall = 30;
-                winnings = (decimal)2.50;
+                winnings = (decimal).50;
                 break;
 			case Difficulty.Normal:
                 numbersToCall = 25;
-                winnings = 5;
+                winnings = 1;
                 break;
 			case Difficulty.Hard:
                 numbersToCall = 20;
-                winnings = 10;
+                winnings = 2;
                 break;
         }
+        callsLeftDisplay.text = "Calls Left: " + numbersToCall;
         StartCoroutine(CallNumbers());
     }
 
@@ -53,10 +55,11 @@ public class Game:MonoBehaviour
     {
         level = picked;
     }
+
     public IEnumerator CallNumbers()
     {
         yield return new WaitForSeconds(5);
-        for(int i = 0; i < numbersToCall; i++){
+        for(int i = 1; i <= numbersToCall; i++){
             callsLeftDisplay.text = "Calls Left: " + (numbersToCall - i);
             int calledNumber;
             
@@ -69,6 +72,7 @@ public class Game:MonoBehaviour
             callTable.EnableText(calledNumber);
             yield return new WaitForSeconds(10);
         }
+        endButton.SetActive(true);
         for(int i = 20; i >=0; i--){
             callsLeftDisplay.text = "Time Left: " + i;
             yield return new WaitForSeconds(1);
@@ -86,7 +90,7 @@ public class Game:MonoBehaviour
         //Otherwise you will be penalized 50 cents for a bad call.
         else{
             badCall.Play();
-            MoneyHolder.Deduct((decimal).50);
+            //MoneyHolder.Deduct((decimal).50);
         }
         //keeps the money floor to 0, even after being penalized.
         if(MoneyHolder.Amount < 0)
@@ -103,11 +107,20 @@ public class Game:MonoBehaviour
         }
     }
 
+    public void EndGame()
+    {
+        StopCoroutine(CallNumbers());
+        StartCoroutine(EndRound());
+    }
+
     private IEnumerator EndRound()
     {
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(2);
         roundOver.Play();
         yield return new WaitForSeconds(5);
-        Application.LoadLevel("Title Screen");
+        if (MoneyHolder.Amount > 0)
+            Application.LoadLevel("Title Screen");
+        else
+            Application.LoadLevel("Broke Screen");
     }
 }

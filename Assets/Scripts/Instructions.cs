@@ -10,9 +10,9 @@ public class Instructions : MonoBehaviour {
     {
         Application.LoadLevel(Application.loadedLevel + 1);
     }
-    public void BackToMenu()
+    public void BackToTitleScreen()
     {
-        Application.LoadLevel("Instructions Menu");
+        Application.LoadLevel("Title Screen");
     }
 
 }

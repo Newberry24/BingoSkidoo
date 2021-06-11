@@ -10,7 +10,10 @@ public static class MoneyHolder
     }
     public static void Deduct(decimal losses)
     {
-        Amount -= losses;
+        if (losses < Amount)
+            Amount -= losses;
+        else
+            Amount = 0;
     }
     public static void Add(decimal earnings)
     {

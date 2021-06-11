@@ -5,9 +5,18 @@ using UnityEngine.UI;
 public class WinDisplayWindow : MonoBehaviour {
     private WinningCombo displayedCombo;
 	public GameObject[] panels;
+    public bool toggle;
+    public int number;
+
     void Start()
     {
-        StartCoroutine(WindowFlipper());
+        if (toggle)
+            StartCoroutine(WindowFlipper());
+        else
+        {
+            displayedCombo = WinningCombos.getWinningCombo(number);
+            UpdatePanels();
+        }
     }
 
     IEnumerator WindowFlipper()
